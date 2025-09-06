@@ -1,6 +1,9 @@
 import os
 from definitions import System, SYSTEM
 import re
+from urllib.request import Request, urlopen
+import json
+
 UBISOFT_REGISTRY = "SOFTWARE\\Ubisoft"
 STEAM_REGISTRY = "Software\\Valve\\Steam"
 UBISOFT_REGISTRY_LAUNCHER = "SOFTWARE\\Ubisoft\\Launcher"
@@ -12,8 +15,12 @@ if SYSTEM == System.WINDOWS:
 UBISOFT_CONFIGURATIONS_BLACKLISTED_NAMES = ["gamename", "l1", '', 'ubisoft game', 'name']
 
 CHROME_USERAGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.121 Safari/537.36"
-CLUB_APPID = "b8fde481-327d-4031-85ce-7c10a202a700"
-CLUB_GENOME_ID = "fbd6791c-a6c6-4206-a75e-77234080b87b"
+URL = "https://store.ubisoft.com/on/demandware.store/Sites-us_ubisoft-Site/en-US/UPlayConnect-GetAPISettingsJson" # updated API IDs
+REQ = Request(URL, headers={"User-Agent": CHROME_USERAGENT})
+with urlopen(REQ) as response:
+    DATA = json.load(response) # response as JSON
+CLUB_APPID = DATA.get("app-id")
+CLUB_GENOME_ID = DATA.get("genome-id")
 
 AUTH_PARAMS = {
     "window_title": "Login | Ubisoft WebAuth",
